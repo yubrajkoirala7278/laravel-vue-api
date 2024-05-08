@@ -4,33 +4,24 @@ namespace App\Service;
 
 use App\Models\Product;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class ProductService
 {
     // ==========ADD Product============
     public function addService($request)
     {
-        $validatedData = $request->validated();
-
-        // generate slug from name of product
-        $slug = Str::slug($request->name);
-        $count = Product::where('slug', $slug)->count();
-        $slug = $count ? $slug . '-' . ($count + 1) : $slug;
-        $validatedData['slug'] = $slug;
-
         //  save image in storage folder
-        if ($request->hasFile('image')) {
+        if (isset($request['image'])) {
             $imageName = null;
             $timestamp = now()->timestamp;
-            $originalName = $request->file('image')[0]->getClientOriginalName();
+            $originalName = $request['image'][0]->getClientOriginalName();
             $imageName = $timestamp . '-' . $originalName;
-            $request->file('image')[0]->storeAs('public/images/products', $imageName);
-            $validatedData['image'] = $imageName;
+            $request['image'][0]->storeAs('public/images/products/', $imageName);
+            $request['image'] = $imageName;
         }
 
         // store in db
-        $product = Product::create($validatedData);
+        $product = Product::create($request);
         return $product;
     }
 

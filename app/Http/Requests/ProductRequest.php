@@ -24,20 +24,13 @@ class ProductRequest extends FormRequest
     {
         $rules= [
             'name'=>['required','min:3','max:255'],
-            // 'slug'=>['required',Rule::unique('products')->ignore($this->product)],
-            'image' => ['required'],
+            'slug'=>['required',Rule::unique('products')->ignore($this->product)],
+            'image' => [$this->isMethod('POST')?'required':'nullable'],
             'price'=>['required'],
             'cross_price'=>['required'],
             'description'=>['required'],
             'color'=>['required']
         ];
-
-        // Conditionally require the image field for POST requests
-        if ($this->isMethod('POST')) {
-            $rules['image'][] = 'required';
-        } else {
-            $rules['image'][] = 'nullable';
-        }
 
         return $rules;
     }

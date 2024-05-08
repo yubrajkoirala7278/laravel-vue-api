@@ -49,7 +49,7 @@ class ProductController extends Controller
     public function store(ProductRequest $request)
     {
         try {
-            $product = $this->productService->addService($request);
+            $product = $this->productService->addService($request->validated());
             // Return the created product as a JSON response
             return response()->json([
                 'message' => 'Product added successfully!',
@@ -63,14 +63,14 @@ class ProductController extends Controller
         }
     }
 
-    public function update(Request $request, Product $product)
+    public function update(ProductRequest $request, Product $product)
     {
         try {
             $updatedProduct = $this->productService->updateService($request->except('_method'), $product);
-            $aaa = new ProductResource($updatedProduct);
+            $updatedProduct = new ProductResource($updatedProduct);
             return response()->json([
                 'message' => 'Product updated successfully!',
-                'product' => $aaa
+                'product' => $updatedProduct
             ]);
         } catch (\Exception $e) {
             // Return an error response
@@ -85,6 +85,9 @@ class ProductController extends Controller
     {
         try {
             $this->productService->deleteService($product);
+            return response()->json([
+                'message' => 'Product deleted successfully!',
+            ]);
         } catch (\Exception $e) {
             // Return an error response
             return response()->json([
