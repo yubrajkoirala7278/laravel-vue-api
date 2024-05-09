@@ -22,9 +22,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         try {
-            // return ProductResource::collection(Product::all());
-            // return ProductResource::collection(Product::latest()->paginate($request->perPage));
-            $products = Product::latest()->paginate($request->perPage);
+            $products=$this->productService->fetchService($request->all());
             return new ProductCollection($products);
         } catch (\Exception $e) {
             // Return an error response
@@ -36,7 +34,7 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        try{
+        try {
             return new ProductResource($product);
         } catch (\Exception $e) {
             // Return an error response
@@ -51,10 +49,7 @@ class ProductController extends Controller
         try {
             $product = $this->productService->addService($request->validated());
             // Return the created product as a JSON response
-            return response()->json([
-                'message' => 'Product added successfully!',
-                'product' => $product
-            ]);
+            return (new ProductResource($product))->additional(['message' => 'Product added successfully!']);
         } catch (\Exception $e) {
             // Return an error response
             return response()->json([
@@ -67,11 +62,7 @@ class ProductController extends Controller
     {
         try {
             $updatedProduct = $this->productService->updateService($request->except('_method'), $product);
-            $updatedProduct = new ProductResource($updatedProduct);
-            return response()->json([
-                'message' => 'Product updated successfully!',
-                'product' => $updatedProduct
-            ]);
+            return (new ProductResource($updatedProduct))->additional(['message' => 'Product updated successfully!']);;
         } catch (\Exception $e) {
             // Return an error response
             return response()->json([
@@ -85,15 +76,13 @@ class ProductController extends Controller
     {
         try {
             $this->productService->deleteService($product);
-            return response()->json([
-                'message' => 'Product deleted successfully!',
-            ]);
+            $message='Product deleted successfully!';
         } catch (\Exception $e) {
             // Return an error response
-            return response()->json([
-                'message' => 'Something went wrong. Please try again later.'
-            ], 500);
+            $message='Something went wrong. Please try again later.';
         }
-        return response()->json('Product deleted successfully');
+        return response()->json([
+            'message' => $message
+        ]);
     }
 }

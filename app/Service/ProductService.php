@@ -7,6 +7,26 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
+    // =========GET Products============
+    public function fetchService($request)
+    {
+        $productQuery = Product::query()->latest();
+
+        // filter
+        if (!empty($request['keyword'])) {
+            $productQuery->where('name', 'like', '%' . $request['keyword'] . '%')->orWhere('price', '=', $request['keyword']);
+        }
+
+        // pagination
+        $perPage = $request['perPage'] ?? 10;
+        $products = $productQuery->paginate($perPage);
+
+        return $products;
+    }
+
+    // =================================
+
+
     // ==========ADD Product============
     public function addService($request)
     {
